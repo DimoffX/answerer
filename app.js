@@ -8,16 +8,27 @@ app.set('view engine', 'ejs');
 //app.use(bodyParser());
 //app.use(cookieParser());
 app.use(express.static('public'));
-
+var fs = require("fs");
 
 app.get("/", function(req,res) {
   res.render("home.ejs");
   
 })
 
+app.get("/history", function(req,res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  fs.readFile('history.txt', {}, function(err,data) {
+    res.end(data);
+    
+  })
+  
+})
+
 app.get("/answer", function(req,res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.query.text && req.query.text.length) {
+    
+    fs.appendFile("history.txt", req.query.text + "^_^");
     resText = "";
     request("http://bing.com?q=" + encodeURIComponent(req.query.text), function(err, resp, body) {
       if (err)
