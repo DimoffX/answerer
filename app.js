@@ -149,5 +149,5 @@ function replaceStopWords(text,lang) {
   }
   
 }
-
-app.listen(process.env.OPENSHIFT_NODEJS_PORT || 80);
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+app.listen(process.env.OPENSHIFT_NODEJS_PORT || 80, server_ip_address);
