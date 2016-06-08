@@ -18,6 +18,7 @@ app.get("/", function(req,res) {
 app.get("/history", function(req,res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   fs.readFile('history.txt', {}, function(err,data) {
+    res.setHeader("Content-Type: text/plain");
     res.end(data);
     
   })
