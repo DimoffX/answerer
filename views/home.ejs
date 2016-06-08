@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Answer stuff...</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href='http://bootswatch.com/cerulean/bootstrap.min.css'>
+ <style>
+    .ocr-results:empty {
+    display: none;
+  }
+   
+   .best-answer-crawled:empty {
+     display: none;
+   }
+  
+  .ocr-meta {
+    display: none;
+  }
+  
+  .best-answer-crawled {
+    background-color: #33CC00;
+    border: 1px solid #eee;
+    color:#eee;
+    font-weight:900;
+    text-shadow: 1px 1px #000;
+    border-radius: 7px;  
+  }
+  
+  .ocr-meta .label {
+    font-size: 1.2em;
+    padding: 0.6em;
+    margin: 0.6em;
+    display: inline-block;
+  }
+   
+ 
+  </style>
+</head>
+
+<body>
+  <div class='container-fluid'>
+    <h1 class='text-center'>Take a picture of your test or any paper with questions and get answers... Or just enter a question yourself.</h1>
+    <form class="form-inline" id='img-submit' action='' method='post'>
+      <label for="img">Upload Image: </label>
+      <input class="form-control" type="file" name="img" id="img">
+      <label for="q">Or write your question</label>
+      <input type="text" class='form-control' id="q" name='q' placeholder="Who is Adolf Hitler?">
+      <select class="form-control" name='lang' id='lang'>
+        <option selected value='eng'>English</option>
+        <option value='rus'>Russian</option>
+        <option value='deu'>German</option>
+        <option value='jpn'>Japanese</option>
+        <option value='spa'>Spanish</option>
+        <option value='fra'>French</option>
+        <option value='por'>Portuguese</option>
+        <option value='ron'>Romanian</option>
+        <option value='bul'>Bulgarian</option>
+
+
+      </select>
+      <button class="btn btn-lg btn-default" type="submit">Get Your Answer</button>
+    </form>
+    <div class="col-md-6 ocr-meta ">
+      <span class='label label-lg label-success'>Image Preview: </span>
+      <img id="preview" class="img img-responsive img-round">
+      <span class='label label-lg label-success'>Extracted Text: </span><span class='lead ocr-results'></span>
+    </div>
+    <div class='col-md-12 '>
+
+
+      <ul class="list-group search-results">
+
+
+      </ul>
+      <img id="spinner" style="width:100%;height:100vh;position:fixed;top:0;left:0;display:none;" src="img/spinner.gif">
+    </div>
+    <script defer src="http://tenso.rs/tesseract.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script>
+      document.getElementById("img-submit").onsubmit = function (evt) {
+        $(".search-results").empty();
+        evt.preventDefault();
+        $("#spinner").fadeIn();
+        if ($("#q").val().length) {
+          $.get("answer?text=" + $("#q").val() + "&lang=" + $("#lang").val(), function (data) {
+            $(".search-results").append("<li class='list-group-item search-result'>" + data + "</li>")
+
+            $("#spinner").fadeOut();
+
+          })
+        } else {
+          previewFile();
+        }
+
+        return false;
+
+      }
+
+      function showProgress(progress) {
+        console.log(progress);
+      }
+
+      function display(results) {
+        res = results;
+        console.log(results.paragraphs[0]);
+
+        document.getElementsByClassName("ocr-results")[0].innerHTML = results.text;
+        var iterations = 0;
+        var totalIterations = results.lines.length;
+        for (var i = 0; i < results.lines.length; i++) {
+          var lineOfText = results.lines[i].text.trim();
+          console.log(lineOfText[lineOfText.length - 1]);
+          if (lineOfText[lineOfText.length - 1] !== "?") {
+            totalIterations--;
+            continue;
+          }
+
+          $.get("answer?text=" + results.lines[i].text + "&lang=" + $("#lang").val(), function (data) {
+            $(".search-results").append("<li class='list-group-item search-result'>" + data + "</li>")
+            iterations++;
+            console.log(iterations);
+            console.log(results.lines.length);
+            if (iterations >= totalIterations) {
+              $(".ocr-meta").show();
+              $("#spinner").fadeOut();
+            }
+          });
+        }
+
+      }
+
+      function previewFile() {
+        var preview = document.querySelector('#preview'); //selects the query named img
+        var file = document.querySelector('#img-submit input[type=file]').files[0]; //sames as here
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+          preview.src = reader.result;
+
+          Tesseract
+            .recognize(preview, {
+              progress: showProgress,
+              lang: $("#lang option:selected").attr("value")
+            })
+            .then(display) // scroll down for full output
+            // you can edit this code
+        }
+
+        if (file) {
+          reader.readAsDataURL(file); //reads the data as a URL
+        } else {
+          preview.src = "";
+        }
+
+      }
+    </script>
+  </div>
+</body>
+
+</html>
