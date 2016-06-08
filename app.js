@@ -10,12 +10,12 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 
-app.get("/", function(req,res) {
+app.get("/app", function(req,res) {
   res.render("home.ejs");
   
 })
 
-app.get("/answer", function(req,res) {
+app.get("/app/answer", function(req,res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.query.text && req.query.text.length) {
     resText = "";
@@ -150,4 +150,4 @@ function replaceStopWords(text,lang) {
   
 }
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
-app.listen(process.env.OPENSHIFT_NODEJS_PORT || 80, server_ip_address);
+app.listen(process.env.OPENSHIFT_NODEJS_PORT || 8080, server_ip_address);
