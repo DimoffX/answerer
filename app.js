@@ -150,4 +150,4 @@ function replaceStopWords(text,lang) {
   
 }
 
-app.listen(80);
+app.listen(process.env.OPENSHIFT_NODEJS_PORT || 80);
