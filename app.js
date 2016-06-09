@@ -59,7 +59,8 @@ app.get("/answer", function(req,res) {
           $$ = cheerio.load(bestBody.toLowerCase());
           for (var j = 0; j < userQuery.length;j++) {
             var matches = $$("p:contains(' "+userQuery[j]+" '),em:contains(' "+userQuery[j]+" '),b:contains(' "+userQuery[j]+" ' ),td:contains(' "+userQuery[j]+" ' ),li:contains(' "+userQuery[j]+" ' )").text();
-            matches = matches.substr((matches.indexOf(userQuery[j]) - 50) % 1,((matches.indexOf(userQuery[j]) - 50) % 1) + 700 );
+            var start = matches.indexOf(userQuery[j]) - 50 > 0 ? matches.indexOf(userQuery[j]) : 0;
+            matches = matches.substr((start),((start) + 700 ));
             bestInputs.push(matches);
           }
           
